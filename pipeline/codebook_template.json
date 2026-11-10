@@ -1,0 +1,18 @@
+{
+  "_instructions": "Template for DEDUCTIVE mode. Copy this file to the path set in harmonization.deductive_codebook (default: codebook_deductive.json), replace the placeholders, and set harmonization.codebook_mode to 'deductive'. Every theme of the config needs at least one sub-theme (there is no 'Other' category). 'id' and 'example_codes' are optional: ids are generated from the theme name if omitted.",
+  "themes": {
+    "STORYTELLING": [
+      {"id": "ST1", "name": "<Sub-theme name>", "definition": "<What this sub-theme includes, precise enough for another coder to apply it>", "example_codes": ["<optional example code>"]},
+      {"name": "<Another sub-theme>", "definition": "<Definition>"}
+    ],
+    "CHALLENGE": [
+      {"name": "<Sub-theme name>", "definition": "<Definition>"}
+    ],
+    "MECHANICS": [
+      {"name": "<Sub-theme name>", "definition": "<Definition>"}
+    ],
+    "SYSTEM": [
+      {"name": "<Sub-theme name>", "definition": "<Definition>"}
+    ]
+  }
+}

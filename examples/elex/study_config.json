@@ -1,0 +1,335 @@
+{
+  "study": {
+    "context": "Steam reviews of ELEX, a single-player open-world action role-playing game"
+  },
+  "paths": {
+    "raw_input": "data/population.json",
+    "output_dir": "output",
+    "files": {
+      "filtered": "filtered_items.json",
+      "filter_report": "filter_report.csv",
+      "filter_decisions": "filter_decisions.json",
+      "encoded": "encoded_results.json",
+      "encoding_checkpoint": "encoding_checkpoint.json",
+      "codebook": "subtheme_codebook.json",
+      "harmonization_checkpoint": "harmonization_checkpoint.json",
+      "final": "thematic_analysis_final.csv",
+      "summary": "thematic_analysis_summary.csv",
+      "rejected": "harmonization_rejected.csv"
+    }
+  },
+  "fields": {
+    "id": "recommendationid",
+    "text": "review",
+    "language": "language",
+    "context": null,
+    "metadata": {
+      "voted_up": "voted_up",
+      "playtime_minutes": "author.playtime_forever",
+      "playtime_at_review_minutes": "author.playtime_at_review",
+      "timestamp_created": "timestamp_created",
+      "refunded": "refunded",
+      "votes_up": "votes_up"
+    }
+  },
+  "models": {
+    "filter": "gemma4:latest",
+    "encoder_1": "gemma4:latest",
+    "encoder_2": "qwen2.5:14b",
+    "harmonizer": "phi4:latest"
+  },
+  "ollama": {
+    "url": "http://localhost:11434/api/chat",
+    "num_ctx": 8192,
+    "num_predict": 3000,
+    "timeout": 300,
+    "max_retries": 3,
+    "seed": 42
+  },
+  "filter": {
+    "use_llm": true,
+    "remove_duplicates": true,
+    "strip_bbcode": true,
+    "strip_markdown": false,
+    "min_effective_chars": 20,
+    "dense_script_weight": 3,
+    "min_letter_ratio": 0.6,
+    "languages": null,
+    "save_every": 25,
+    "informative_criteria": "it contains at least ONE specific statement about the game, for example about the story, characters, dialogue, world, gameplay, mechanics, combat, difficulty, progression, content, tutorial or first hours, interface, controls, graphics, music, atmosphere, performance, bugs, updates, DLC, or a comparison that names a specific aspect. Short texts CAN be informative: a single word or phrase describing a SPECIFIC QUALITY of the game is enough (e.g. 'clunky combat', 'great story', 'grindy', 'hard at the start', 'buggy', 'beautiful world').",
+    "not_informative_criteria": "it contains only pure value judgements with no specific quality ('great game', 'fun', 'love it', 'boring', '10/10', 'best game ever'), a bare recommendation ('buy it'), jokes, memes or copypasta not about the game, or text with no statement about the game."
+  },
+  "themes": [
+    {
+      "name": "STORYTELLING",
+      "definition": "The narrative content of the game and how it is told.",
+      "includes": "plot, quests as stories, characters, companions, dialogue, writing, voice acting as performance, choices and consequences in the story, factions and lore, world building, the setting as a fictional world.",
+      "excludes": "visual or sound style of the world (→ AUDIOVISUAL); quest structure, rewards or amount of quests (→ PROGRESSION_CONTENT)."
+    },
+    {
+      "name": "MECHANICS",
+      "definition": "The rules and systems the player acts with.",
+      "includes": "core loop, combat system, movement and traversal, exploration as an activity, crafting, skills and attributes as systems, economy, stealth, companion behaviour in play, player freedom and agency.",
+      "excludes": "how hard the game is (→ CHALLENGE); the pace of rewards or the amount of content (→ PROGRESSION_CONTENT); input and menus (→ UI); software faults (→ SYSTEM)."
+    },
+    {
+      "name": "CHALLENGE",
+      "definition": "How hard the game is and how fairly that difficulty is balanced.",
+      "includes": "difficulty level, difficulty curve, enemy strength, balance, punishment, frustration caused by difficulty, sense of mastery.",
+      "excludes": "difficulty caused by not understanding the game (→ ONBOARDING); difficulty caused by controls or bugs (→ UI, SYSTEM)."
+    },
+    {
+      "name": "PROGRESSION_CONTENT",
+      "definition": "How the game rewards the player over time and how much there is to do.",
+      "includes": "character growth over time, pacing, rewards, loot, grind, game length, amount and variety of content, side quests as content, world size, replayability, endgame.",
+      "excludes": "how a system works rather than its pace (→ MECHANICS); early-game teaching (→ ONBOARDING)."
+    },
+    {
+      "name": "ONBOARDING",
+      "definition": "How the game introduces itself and teaches its rules.",
+      "includes": "tutorials, first hours of play, slow or rough start, learning curve, clarity of the rules, guidance on what to do or where to go at the beginning.",
+      "excludes": "general difficulty after the player has learned the game (→ CHALLENGE); where information sits in the menus (→ UI)."
+    },
+    {
+      "name": "UI",
+      "definition": "How the player sees information and gives input.",
+      "includes": "interface, HUD, menus, inventory screens, quest log, map, readability, text size, controls, keybindings, camera, gamepad or keyboard support, accessibility options.",
+      "excludes": "things that fail to work because of a software fault (→ SYSTEM); the rules of a system (→ MECHANICS)."
+    },
+    {
+      "name": "AUDIOVISUAL",
+      "definition": "The look and sound of the game.",
+      "includes": "graphics, art direction, animation, environments as visuals, music, sound effects, atmosphere created by image and sound.",
+      "excludes": "the fictional world and its story (→ STORYTELLING); voice acting as performance (→ STORYTELLING); frame rate and graphical faults (→ SYSTEM)."
+    },
+    {
+      "name": "SYSTEM",
+      "definition": "How the software runs.",
+      "includes": "bugs, glitches, crashes, performance, frame rate, loading times, save files, compatibility, hardware and platform issues, port quality.",
+      "excludes": "interface or control design (→ UI); intended game rules (→ MECHANICS)."
+    },
+    {
+      "name": "LIVE_DEVELOPMENT",
+      "definition": "How the game changed after release and how its developers acted.",
+      "includes": "patches, updates, fixes over time, DLC, mods support, community management, developer response, the studio's support or abandonment of the game.",
+      "excludes": "a bug itself without reference to its fix or to the developers (→ SYSTEM); general reputation of the studio with no reference to support of this game."
+    }
+  ],
+  "global_rules": [
+    "Generic praise or opinion with no topic ('love this game', 'awesome', 'so much fun') matches no theme.",
+    "Price or value for money alone matches no theme.",
+    "A comparison with another game matches a theme only if it names a specific aspect of ELEX.",
+    "Code what the reviewer says about this game, not what you know about it."
+  ],
+  "sentiment": [
+    {
+      "label": "Very Negative",
+      "polarity": "Negative",
+      "description": "severe bugs, extreme frustration, unplayable design."
+    },
+    {
+      "label": "Negative",
+      "polarity": "Negative",
+      "description": "criticisms, annoyances, flaws, complaints (also irony/sarcasm about problems)."
+    },
+    {
+      "label": "Neutral",
+      "polarity": "Neutral",
+      "description": "purely descriptive statements."
+    },
+    {
+      "label": "Positive",
+      "polarity": "Positive",
+      "description": "enjoyable, pleasant, good."
+    },
+    {
+      "label": "Very Positive",
+      "polarity": "Positive",
+      "description": "high praise, deep enthusiasm."
+    }
+  ],
+  "few_shot_examples": [
+    {
+      "note": "English, several themes",
+      "text": "The world is huge and full of secrets, and the jetpack makes exploring a joy. Sadly the combat feels clunky and the first hours are brutal because every enemy kills you in two hits. The inventory menu is a mess.",
+      "output": {
+        "PROGRESSION_CONTENT": [
+          {
+            "snippet": "The world is huge and full of secrets",
+            "code": "large world with much to discover",
+            "sentiment": "Very Positive"
+          }
+        ],
+        "MECHANICS": [
+          {
+            "snippet": "the jetpack makes exploring a joy",
+            "code": "jetpack makes traversal enjoyable",
+            "sentiment": "Very Positive"
+          },
+          {
+            "snippet": "the combat feels clunky",
+            "code": "clunky combat system",
+            "sentiment": "Negative"
+          }
+        ],
+        "CHALLENGE": [
+          {
+            "snippet": "every enemy kills you in two hits",
+            "code": "enemies too strong early on",
+            "sentiment": "Negative"
+          }
+        ],
+        "ONBOARDING": [
+          {
+            "snippet": "the first hours are brutal",
+            "code": "harsh opening hours",
+            "sentiment": "Negative"
+          }
+        ],
+        "UI": [
+          {
+            "snippet": "The inventory menu is a mess",
+            "code": "confusing inventory menu",
+            "sentiment": "Negative"
+          }
+        ]
+      }
+    },
+    {
+      "note": "German",
+      "text": "Die Geschichte ist spannend und die Entscheidungen haben echte Folgen. Die Grafik ist veraltet, aber nach dem letzten Patch läuft das Spiel endlich stabil.",
+      "output": {
+        "STORYTELLING": [
+          {
+            "snippet": "Die Geschichte ist spannend",
+            "code": "gripping story",
+            "sentiment": "Positive"
+          },
+          {
+            "snippet": "die Entscheidungen haben echte Folgen",
+            "code": "choices have real consequences",
+            "sentiment": "Very Positive"
+          }
+        ],
+        "AUDIOVISUAL": [
+          {
+            "snippet": "Die Grafik ist veraltet",
+            "code": "outdated graphics",
+            "sentiment": "Negative"
+          }
+        ],
+        "LIVE_DEVELOPMENT": [
+          {
+            "snippet": "nach dem letzten Patch läuft das Spiel endlich stabil",
+            "code": "patch improved stability",
+            "sentiment": "Positive"
+          }
+        ]
+      }
+    },
+    {
+      "note": "Russian",
+      "text": "Анимации деревянные, зато музыка отлично создаёт атмосферу. Игра часто вылетает на рабочий стол.",
+      "output": {
+        "AUDIOVISUAL": [
+          {
+            "snippet": "Анимации деревянные",
+            "code": "stiff animations",
+            "sentiment": "Negative"
+          },
+          {
+            "snippet": "музыка отлично создаёт атмосферу",
+            "code": "music creates strong atmosphere",
+            "sentiment": "Very Positive"
+          }
+        ],
+        "SYSTEM": [
+          {
+            "snippet": "Игра часто вылетает на рабочий стол",
+            "code": "frequent crashes to desktop",
+            "sentiment": "Very Negative"
+          }
+        ]
+      }
+    },
+    {
+      "note": "no relevant content",
+      "text": "10/10 would buy again",
+      "output": {}
+    }
+  ],
+  "encoding": {
+    "verify": true,
+    "max_chunk_chars": 2000,
+    "min_snippet_words": 3,
+    "min_snippet_chars": 12,
+    "max_code_words": 10,
+    "save_every": 40
+  },
+  "harmonization": {
+    "codebook_mode": "inductive",
+    "deductive_codebook": "codebook_deductive.json",
+    "max_subthemes_per_theme": 5,
+    "codebook_induction": {
+      "embedding_model": "nomic-embed-text:latest",
+      "embedding_prefix": "clustering: ",
+      "clusters_per_theme": 15,
+      "codes_per_cluster_shown": 10,
+      "evaluation_models": [
+        "phi4:latest",
+        "gemma4:latest"
+      ],
+      "evaluation_sample": 160,
+      "evaluation_batch": 40,
+      "max_revision_rounds": 3,
+      "thresholds": {
+        "min_share": 0.05,
+        "max_share": 0.4,
+        "max_unassigned": 0.1,
+        "min_kappa": 0.7,
+        "merge_confusion": 0.15,
+        "merge_similarity": 0.93,
+        "min_subthemes_per_theme": 2
+      }
+    },
+    "max_candidates_per_call": 12,
+    "match_threshold": 0.6,
+    "parallel_requests": 2,
+    "num_ctx": 12288,
+    "save_every": 10,
+    "summary_example_language": "english"
+  },
+  "sampling": {
+    "group_field": null,
+    "n_per_group": 1200,
+    "oversample": null,
+    "seed": 42,
+    "context_template": null,
+    "balance_fields": [
+      {
+        "name": "log_hours_total",
+        "field": "author.playtime_forever",
+        "transform": "log1p"
+      },
+      {
+        "name": "review_year",
+        "field": "timestamp_created",
+        "transform": "year"
+      }
+    ],
+    "output_dir": "sample"
+  },
+  "validation": {
+    "per_group": 100,
+    "oversampled_per_group": 25,
+    "seed": 2026,
+    "translator_model": "mistral-small:latest",
+    "target_language": [
+      "english"
+    ],
+    "translate_to": "English",
+    "output_dir": "validation",
+    "n_boot": 2000
+  },
+  "_note": "Configuration of the ELEX use case. Paths are relative to this file. Copy it next to your data and edit study, themes and few_shot_examples for your game."
+}
