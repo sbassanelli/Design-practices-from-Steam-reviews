@@ -186,8 +186,8 @@ subsample is recommended before relying on the results.
 
 ## Use case and data
 
-The use case (Steam reviews of *ELEX*) and all its data, outputs and analysis scripts are in a separate repository.
-<!-- TODO: link to the data repository (anonymized link during review). -->
+The use case (Steam reviews of *ELEX*) and all its data, outputs and analysis scripts are in a separate repository:
+[Steam reviews of ELEX: data and results](https://github.com/sbassanelli/Steam-reviews---ELEX).
 
 ## Citation
 
@@ -195,4 +195,4 @@ The use case (Steam reviews of *ELEX*) and all its data, outputs and analysis sc
 
 ## License
 
-<!-- TODO: choose a license (for example MIT for the code). -->
+MIT (see [LICENSE](LICENSE)).
